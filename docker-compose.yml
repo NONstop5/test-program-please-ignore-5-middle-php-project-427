@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+    db:
+        image: postgres:17-alpine
+        container_name: db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_ROOT_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+            TZ: "Europe/Moscow"
+        ports:
+            - "${POSTGRES_PORT}:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    app:
+        container_name: app
+        restart: unless-stopped
+        build:
+            context: .
+        command: make start
+        environment:
+            TZ: "Europe/Moscow"
+            PORT: "8000"
+        ports:
+            - "8080:8000"
+        volumes:
+            - ".:/app"
+            - "/tmp:/tmp"
+        depends_on:
+            -  db
+volumes:
+    pgdata:
