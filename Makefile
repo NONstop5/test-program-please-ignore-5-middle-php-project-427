@@ -28,6 +28,9 @@ lint-fix:
 test:
 	vendor/bin/phpunit tests
 
+gen-openapi:
+	npx tsp compile contract
+
 docker-up-d:
 	docker compose --env-file ./docker/.env up -d
 
