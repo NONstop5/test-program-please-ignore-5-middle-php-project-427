@@ -9,13 +9,21 @@ use App\Repository\FlightRepository;
 use App\Service\BookingMapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpNotFoundException;
 
 final class BookingController
 {
     private const MAX_TEXT_LENGTH = 255;
     private const MAX_PHONE_LENGTH = 50;
     private const MAX_FLIGHT_ID_LENGTH = 20;
+
+    /**
+     * The same message is used for an unknown code, a wrong surname and a missing surname:
+     * telling these cases apart would let an attacker enumerate valid six-character codes.
+     */
+    private const NOT_FOUND_MESSAGE = 'Booking not found';
 
     public function __construct(
         private readonly FlightRepository $flightRepository,
@@ -57,6 +65,75 @@ final class BookingController
         $response->getBody()->write(json_encode($booking, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
 
         return $response->withStatus(201);
+    }
+
+    /**
+     * @param array<string, string> $args
+     */
+    public function showAction(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $params = $request->getQueryParams();
+        $lastName = $this->optionalLastName($params['lastName'] ?? null);
+
+        $result = $this->bookingRepository->findByCodeAndLastName((string) $args['code'], $lastName);
+
+        if ($result === null) {
+            throw new HttpNotFoundException($request, self::NOT_FOUND_MESSAGE);
+        }
+
+        $booking = $this->mapBookingResult($result);
+        $response->getBody()->write(json_encode($booking, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+
+        return $response;
+    }
+
+    /**
+     * Cancellation is an action on the resource, not its removal, so the booking keeps
+     * existing with a changed status and the frontend receives the new status to redraw
+     * the card; an empty body would break that contract.
+     *
+     * @param array<string, string> $args
+     */
+    public function cancelAction(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+        $lastName = $this->optionalLastName(is_array($body) ? ($body['lastName'] ?? null) : null);
+
+        $result = $this->bookingRepository->cancelByCodeAndLastName((string) $args['code'], $lastName);
+
+        if ($result === null) {
+            throw new HttpNotFoundException($request, self::NOT_FOUND_MESSAGE);
+        }
+
+        $booking = $this->mapBookingResult($result);
+        $response->getBody()->write(json_encode($booking, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+
+        return $response;
+    }
+
+    /**
+     * A missing, non-string or blank lastName must never be distinguishable from a wrong
+     * one, so it is normalized to an empty string that can never match a real surname.
+     */
+    private function optionalLastName(mixed $value): string
+    {
+        return is_string($value) ? trim($value) : '';
+    }
+
+    /**
+     * @param array{booking: array<string, mixed>, passengers: list<array<string, mixed>>} $result
+     * @return array<string, mixed>
+     */
+    private function mapBookingResult(array $result): array
+    {
+        $flight = $this->flightRepository->findById((string) $result['booking']['flight_id']);
+
+        // The foreign key guarantees the flight exists; this is a safety net, not a user-facing case.
+        if ($flight === null) {
+            throw new RuntimeException('Booking references an unknown flight');
+        }
+
+        return $this->bookingMapper->map($result['booking'], $result['passengers'], $flight);
     }
 
     /**

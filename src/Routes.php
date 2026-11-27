@@ -28,9 +28,8 @@ class Routes
             $group->get('/flights', [FlightController::class, 'searchAction'])->setName('flights.search');
             $group->get('/flights/{id}', [FlightController::class, 'getAction'])->setName('flights.show');
             $group->post('/bookings', [BookingController::class, 'createAction'])->setName('bookings.create');
-//            $group->post('', [UrlController::class, 'createAction'])->setName('urls.create');
-//            $group->get('/{id:[0-9]+}', [UrlController::class, 'getUrlAction'])->setName('urls.show');
-//            $group->post('/{id:[0-9]+}/checks', [UrlCheckController::class, 'checkUrlAction'])->setName('urls.check');
+            $group->get('/bookings/{code}', [BookingController::class, 'showAction'])->setName('bookings.show');
+            $group->post('/bookings/{code}/cancel', [BookingController::class, 'cancelAction'])->setName('bookings.cancel');
         })->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
             $response = $handler->handle($request);
 
