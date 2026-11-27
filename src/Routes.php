@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Controller\CityController;
+use App\Controller\FlightController;
 use App\Controller\IndexController;
 use DI\Container;
 use Psr\Http\Message\ResponseInterface;
@@ -23,6 +24,8 @@ class Routes
         $app->group('/api', function (RouteCollectorProxy $group) {
             $group->get('/health', [IndexController::class, 'healthAction'])->setName('health');
             $group->get('/cities', [CityController::class, 'listAction'])->setName('cities');
+            $group->get('/flights', [FlightController::class, 'searchAction'])->setName('flights.search');
+            $group->get('/flights/{id}', [FlightController::class, 'getAction'])->setName('flights.show');
 //            $group->post('', [UrlController::class, 'createAction'])->setName('urls.create');
 //            $group->get('/{id:[0-9]+}', [UrlController::class, 'getUrlAction'])->setName('urls.show');
 //            $group->post('/{id:[0-9]+}/checks', [UrlCheckController::class, 'checkUrlAction'])->setName('urls.check');
