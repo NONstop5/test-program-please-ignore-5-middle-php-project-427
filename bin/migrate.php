@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Connection;
 use App\Migrations;
+use App\Seeder;
 use Dotenv\Dotenv;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -16,4 +17,6 @@ if (!is_string($databaseUrl) || $databaseUrl === '') {
     throw new RuntimeException('DATABASE_URL must be set');
 }
 
-(new Migrations())->run(Connection::create($databaseUrl));
+$connection = Connection::create($databaseUrl);
+(new Migrations())->run($connection);
+(new Seeder())->run($connection);

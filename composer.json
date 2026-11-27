@@ -39,6 +39,6 @@
     "scripts": {
         "lint": "composer exec -v phpcs -- --colors public src bin tests && vendor/bin/phpstan analyse",
         "lint-fix": "composer exec -v phpcbf -- --colors public src bin tests",
-        "test": "composer exec -v phpunit tests"
+        "tests": "composer exec -v phpunit tests"
     }
 }
