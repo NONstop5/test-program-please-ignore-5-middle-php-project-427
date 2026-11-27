@@ -36,6 +36,8 @@ final class Application
         $httpErrorHandler = new HttpErrorHandler($app->getCallableResolver(), $app->getResponseFactory(), $logger);
 
         $app->addRoutingMiddleware();
+        // Parses JSON request bodies of POST endpoints, such as POST /api/bookings.
+        $app->addBodyParsingMiddleware();
         $errorMiddleware = $app->addErrorMiddleware($appEnv !== 'prod', true, true);
         $errorMiddleware->setDefaultErrorHandler($httpErrorHandler);
         $app->add(MethodOverrideMiddleware::class);

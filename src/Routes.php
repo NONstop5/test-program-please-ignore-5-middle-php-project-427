@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Controller\BookingController;
 use App\Controller\CityController;
 use App\Controller\FlightController;
 use App\Controller\IndexController;
@@ -26,6 +27,7 @@ class Routes
             $group->get('/cities', [CityController::class, 'listAction'])->setName('cities');
             $group->get('/flights', [FlightController::class, 'searchAction'])->setName('flights.search');
             $group->get('/flights/{id}', [FlightController::class, 'getAction'])->setName('flights.show');
+            $group->post('/bookings', [BookingController::class, 'createAction'])->setName('bookings.create');
 //            $group->post('', [UrlController::class, 'createAction'])->setName('urls.create');
 //            $group->get('/{id:[0-9]+}', [UrlController::class, 'getUrlAction'])->setName('urls.show');
 //            $group->post('/{id:[0-9]+}/checks', [UrlCheckController::class, 'checkUrlAction'])->setName('urls.check');
