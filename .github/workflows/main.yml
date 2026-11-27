@@ -18,7 +18,7 @@ jobs:
             # checkout — клонирует репозиторий
             # Check-out repository under GitHub workspace
             # https://github.com/actions/checkout
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
                 # Step's name
             - name: Setup PHP
                 # Action gives to setup the PHP environment to test application
@@ -27,10 +27,21 @@ jobs:
               with:
                   # Specify the PHP version
                   php-version: '8.2'
+            - name: Locate Composer cache
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-php82-composer-${{ hashFiles('composer.lock') }}
+                  restore-keys: ${{ runner.os }}-php82-composer-
             # Install project
             - name: Install project
               run: make install
             # Run linter
             - name: Run linter
               run: make lint
-
+            # Run tests
+            - name: Run tests
+              run: make test

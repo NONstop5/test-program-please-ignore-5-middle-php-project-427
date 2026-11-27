@@ -37,7 +37,8 @@
         "phpunit/phpunit": "^10.5"
     },
     "scripts": {
-        "lint": "composer exec -v phpcs -- --colors public src bin && vendor/bin/phpstan analyse",
-        "lint-fix": "composer exec -v phpcbf -- --colors public src bin"
+        "lint": "composer exec -v phpcs -- --colors public src bin tests && vendor/bin/phpstan analyse",
+        "lint-fix": "composer exec -v phpcbf -- --colors public src bin tests",
+        "test": "composer exec -v phpunit tests"
     }
 }

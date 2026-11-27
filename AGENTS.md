@@ -3,6 +3,8 @@
 This file provides guidance to the AI agent when working with code in this repository.
 
 - Отвечай всегда на Русском языке
+- Backend приложение API на PHP 8.2 для фронтенда
+- Фронтенд имеется уже готовый в виде npm пакета как внешняя зависимость
 - Run `make lint` and relevant manual checks for changes. There is no local test suite; `npm test` is a failing placeholder.
 - `make install` installs PHP dependencies; `make validate` validates Composer metadata; `make lint-fix` rewrites PHP files in `public` and `src`.
 - Follow PSR-12; PHPStan runs at level 8.

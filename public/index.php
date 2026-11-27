@@ -2,14 +2,8 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Connection;
-use App\Handlers\HttpErrorHandler;
-use App\Routes;
-use DI\Container;
+use App\Application;
 use Dotenv\Dotenv;
-use GuzzleHttp\Client;
-use Slim\Factory\AppFactory;
-use Slim\Middleware\MethodOverrideMiddleware;
 
 $dotenv = Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->safeLoad();
@@ -49,35 +43,4 @@ if (($method === 'GET' || $method === 'HEAD') && !$isApiRequest) {
 // Старт PHP сессии
 session_start();
 
-$container = new Container();
-
-$container->set(PDO::class, static function (): PDO {
-    $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL');
-    if (!is_string($databaseUrl) || $databaseUrl === '') {
-        throw new RuntimeException('DATABASE_URL must be set');
-    }
-
-    return Connection::create($databaseUrl);
-});
-$container->set(Client::class, fn() => new Client(['timeout' => 2.0]));
-
-$app = AppFactory::createFromContainer($container);
-
-$callableResolver = $app->getCallableResolver();
-$responseFactory = $app->getResponseFactory();
-
-// Определяем пользовательский обработчик ошибок
-$httpErrorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
-
-// Добавление промежуточного ПО маршрутизации
-$app->addRoutingMiddleware();
-
-// Добавляем промежуточное ПО обработки ошибок
-$errorMiddleware = $app->addErrorMiddleware($appEnv !== 'prod', true, true);
-$errorMiddleware->setDefaultErrorHandler($httpErrorHandler);
-
-$app->add(MethodOverrideMiddleware::class);
-
-Routes::init($app);
-
-$app->run();
+Application::create($appEnv)->run();
