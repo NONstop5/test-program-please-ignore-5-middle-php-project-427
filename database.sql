@@ -62,16 +62,11 @@ SELECT seed.code, seed.name, seed.country
 FROM (VALUES
     ('MOW', 'Москва', 'Россия'),
     ('LED', 'Санкт-Петербург', 'Россия'),
+    ('AER', 'Сочи', 'Россия'),
     ('KZN', 'Казань', 'Россия'),
     ('SVX', 'Екатеринбург', 'Россия'),
     ('OVB', 'Новосибирск', 'Россия'),
-    ('AER', 'Сочи', 'Россия'),
-    ('VVO', 'Владивосток', 'Россия'),
-    ('KGD', 'Калининград', 'Россия'),
-    ('IST', 'Стамбул', 'Турция'),
-    ('DXB', 'Дубай', 'ОАЭ'),
-    ('EVN', 'Ереван', 'Армения'),
-    ('MSQ', 'Минск', 'Беларусь')
+    ('KGD', 'Калининград', 'Россия')
 ) AS seed (code, name, country)
 WHERE NOT EXISTS (SELECT 1 FROM cities WHERE cities.code = seed.code)
 ON CONFLICT (code) DO NOTHING;
@@ -80,15 +75,9 @@ INSERT INTO airlines (code, name)
 SELECT seed.code, seed.name
 FROM (VALUES
     ('SU', 'Аэрофлот'),
-    ('S7', 'S7 Airlines'),
-    ('U6', 'Уральские авиалинии'),
     ('DP', 'Победа'),
-    ('UT', 'ЮТэйр'),
-    ('FV', 'Россия'),
-    ('N4', 'Nordwind Airlines'),
-    ('5N', 'Smartavia'),
-    ('B2', 'Белавиа'),
-    ('TK', 'Turkish Airlines')
+    ('S7', 'S7 Airlines'),
+    ('U6', 'Урал')
 ) AS seed (code, name)
 WHERE NOT EXISTS (SELECT 1 FROM airlines WHERE airlines.code = seed.code)
 ON CONFLICT (code) DO NOTHING;
